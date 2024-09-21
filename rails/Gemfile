@@ -1,5 +1,5 @@
 source "https://rubygems.org"
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+git_source(:github) {|repo| "https://github.com/#{repo}.git" }
 
 ruby "3.3.0"
 
@@ -7,10 +7,10 @@ ruby "3.3.0"
 gem "bootsnap", require: false
 
 # MySQLに接続する
-gem 'mysql2'
+gem "mysql2"
 
 # pumaサーバーを使えるようにする（標準gem）
-gem 'puma', '~> 6.0'
+gem "puma", "~> 6.0"
 
 # rails本体（標準gem）
 gem "rails", "~> 7.2.1"
@@ -23,5 +23,8 @@ group :development, :test do
   gem "pry-byebug"
   gem "pry-doc"
   gem "pry-rails"
-  gem 'rspec-rails'
+  gem "rspec-rails"
+  gem "rubocop-faker"
+  gem "rubocop-rails"
+  gem "rubocop-rspec"
 end
