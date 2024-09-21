@@ -9,6 +9,10 @@ Rails.application.configure do
   config.enable_reloading = true
   config.hosts << "www.example.com"
 
+  config.action_mailer.default_options = { from: "no-reply@example.com" }
+  config.action_mailer.default_url_options = { host: "localhost:3000" }
+  config.action_mailer.delivery_method = :letter_opener_web
+
   # Do not eager load code on boot.
   config.eager_load = false
 

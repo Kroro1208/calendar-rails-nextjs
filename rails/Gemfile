@@ -29,6 +29,7 @@ gem "devise_token_auth"
 
 group :development, :test do
   # pry コンソールを使えるようにする。
+  gem "letter_opener_web"
   gem "pry-byebug"
   gem "pry-doc"
   gem "pry-rails"
