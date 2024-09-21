@@ -1,0 +1,16 @@
+current directory: /myapp/vendor/bundle/ruby/3.3.0/gems/json-2.7.2/ext/json
+/usr/local/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /myapp/vendor/bundle/ruby/3.3.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240921-553-213qom sitelibdir\=./.gem.20240921-553-213qom clean
+
+current directory: /myapp/vendor/bundle/ruby/3.3.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240921-553-213qom sitelibdir\=./.gem.20240921-553-213qom
+make: Nothing to be done for 'all'.
+
+current directory: /myapp/vendor/bundle/ruby/3.3.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240921-553-213qom sitelibdir\=./.gem.20240921-553-213qom install
+
+current directory: /myapp/vendor/bundle/ruby/3.3.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240921-553-213qom sitelibdir\=./.gem.20240921-553-213qom clean

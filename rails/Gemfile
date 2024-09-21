@@ -13,10 +13,19 @@ gem "mysql2"
 gem "puma", "~> 6.0"
 
 # rails本体（標準gem）
-gem "rails", "~> 7.2.1"
+gem "rails", "~> 7.1"
 
 # タイムゾーン情報を提供する（標準gem）
 gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
+
+# ユーザー認証を提供する
+gem "devise"
+
+# devise を日本語化する
+gem "devise-i18n"
+
+# ユーザーのトークン認証を提供する
+gem "devise_token_auth"
 
 group :development, :test do
   # pry コンソールを使えるようにする。
