@@ -29,5 +29,14 @@ services:
       - DATABASE_HOST=db
       - DATABASE_PORT=3306
       - RAILS_ENV=development
+  next:
+      build:
+        dockerfile: ./next/Dockerfile
+      tty: true
+      stdin_open: true
+      volumes:
+        - ./next:/app
+      ports:
+        - "8000:3000"
 volumes:
   mysql_data:
