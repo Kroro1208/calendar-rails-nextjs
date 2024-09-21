@@ -14,7 +14,7 @@ services:
   rails:
     build:
       context: ./rails
-    command: bash -c "bundle exec rails s -b '0.0.0.0'"
+    command: bash -c "tail -f log/development.log"
     volumes:
       - ./rails:/myapp
     ports:
