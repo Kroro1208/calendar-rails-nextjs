@@ -6,10 +6,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
-import { signIn } from "./lib/api/auth";
+import { useEffect, useState } from "react";
+import { getUser, signIn } from './lib/api/auth';
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Loading from "./Loading";
 
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleLogin = async() => {
     try {
@@ -43,6 +45,23 @@ export default function Home() {
       console.error("ログインエラー:", error);
     }
   }
+
+  useEffect(() => {
+    const checkLogin = async() => {
+      try {
+        await getUser();
+        router.push('/calender');
+      } catch (error) {
+        console.log('認証中にエラーが発生しました');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkLogin();
+  },[router])
+
+  if(isLoading) <Loading />
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200">
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center bg-gray-100">

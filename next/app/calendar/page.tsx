@@ -1,8 +1,7 @@
-
 const CalenderPage = () => {
   return (
     <div>
-      
+      カレンダーページ
     </div>
   )
 }
