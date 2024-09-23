@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image";
 import HomeImg from "../public/Timeline-bro.png";
 import Link from "next/link";
@@ -5,8 +6,43 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { signIn } from "./lib/api/auth";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+
 
 export default function Home() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleLogin = async() => {
+    try {
+      const res = await signIn({ email, password});
+      const accessToken = res.headers["access-token"];
+      const clientToken = res.headers.client;
+      const uid = res.headers.uid;
+
+      if(accessToken && clientToken && uid) {
+        Cookies.set("_access_token", accessToken);
+        Cookies.set("_client", clientToken);
+        Cookies.set("_uid", uid);
+        router.push("/calender");
+      } else {
+        throw new Error("認証されませんでした");
+      }
+
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("ログイン中に予期せぬエラーが発生しました");
+      }
+      console.error("ログインエラー:", error);
+    }
+  }
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200">
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center bg-gray-100">
@@ -25,14 +61,23 @@ export default function Home() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Input type="email" placeholder="メールアドレス" />
+              <Input
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+                type="email" placeholder="メールアドレス" />
             </div>
             <div className="space-y-2">
-              <Input type="password" placeholder="パスワード" />
+              <Input
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                type="password" placeholder="パスワード" />
             </div>
+            {error && (
+              <div className="text-red-500 text-sm">{error}</div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button className="w-full">ログインする</Button>
+            <Button onClick={handleLogin} className="w-full">ログインする</Button>
             <div className="flex items-center justify-center space-x-2 text-sm">
               <span>アカウント登録はこちら</span>
               <ArrowRight size={16} className="ml-1"/>
