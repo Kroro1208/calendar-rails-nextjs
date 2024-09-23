@@ -22,14 +22,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install libyaml
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libyaml-dev
-
-      - name: Set environment variables
-        run: |
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -37,8 +33,15 @@ jobs:
           ruby-version: '3.3.0'
           bundler-cache: false
 
-      - name: Install specific psych version
+      - name: Set environment variables
         run: |
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
+          echo "LDFLAGS=-L/usr/local/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I/usr/local/include" >> $GITHUB_ENV
+
+      - name: Reinstall psych
+        run: |
+          gem uninstall -aIx psych
           gem install psych -v 5.1.0 -- --use-system-libraries
 
       - name: Cache node modules
@@ -49,15 +52,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Configure bundler
-        run: |
-          bundle config set --local path 'vendor/bundle'
-          bundle config set --local without 'production'
-
       - name: Bundler and gem install
         run: |
           gem update --system
           gem install bundler
+          bundle config build.psych --with-ldflags="-L/usr/local/lib"
           bundle install --jobs 4 --retry 3
 
       - name: Database create and migrate
@@ -78,14 +77,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install libyaml
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libyaml-dev
-
-      - name: Set environment variables
-        run: |
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -93,19 +88,22 @@ jobs:
           ruby-version: '3.3.0'
           bundler-cache: false
 
-      - name: Install specific psych version
+      - name: Set environment variables
         run: |
-          gem install psych -v 5.1.0 -- --use-system-libraries
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
+          echo "LDFLAGS=-L/usr/local/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I/usr/local/include" >> $GITHUB_ENV
 
-      - name: Configure bundler
+      - name: Reinstall psych
         run: |
-          bundle config set --local path 'vendor/bundle'
-          bundle config set --local without 'production'
+          gem uninstall -aIx psych
+          gem install psych -v 5.1.0 -- --use-system-libraries
 
       - name: Bundler and gem install
         run: |
           gem update --system
           gem install bundler
+          bundle config build.psych --with-ldflags="-L/usr/local/lib"
           bundle install --jobs 4 --retry 3
 
       - name: Run rubocop
