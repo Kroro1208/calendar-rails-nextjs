@@ -36,7 +36,7 @@ All notable changes to this project will be documented in this file. For info on
 - Fix passing non-strings to `Rack::Utils.escape_html`. ([#2202](https://github.com/rack/rack/pull/2202), [@earlopain])
 - `Rack::MockResponse` gracefully handles empty cookies ([#2203](https://github.com/rack/rack/pull/2203) [@wynksaiddestroy])
 
-## [3.1.2] - 2024-06-11
+## [3.3.0] - 2024-06-11
 
 - `Rack::Response` will take in to consideration chunked encoding responses ([#2204](https://github.com/rack/rack/pull/2204), [@tenderlove])
 
@@ -285,7 +285,7 @@ Rack v3.1 is primarily a maintenance release that removes features deprecated in
 ### Security
 
 - [CVE-2022-30123] Fix shell escaping issue in Common Logger
-- [CVE-2022-30122] Restrict parsing of broken MIME attachments
+- [CVE-2022-3.3.0] Restrict parsing of broken MIME attachments
 
 ## [2.2.3] - 2020-06-15
 

@@ -1579,7 +1579,7 @@ module Net
       #                        ;; Extends non-terminal defined in [RFC4466].
       #                        ;; Value 0 denotes that the mailbox doesn't
       #                        ;; support persistent mod-sequences
-      #                        ;; as described in Section 3.1.2.2.
+      #                        ;; as described in Section 3.3.0.2.
       # RFC7889:
       # status-att-val =/ "APPENDLIMIT" SP (number / nil)
       #                 ;; status-att-val is defined in RFC 4466

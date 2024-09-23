@@ -827,7 +827,7 @@ Bug Fixes:
   are in slightly different forms (e.g. one starting with `./`).
   (Christian Nelson, #1698)
 
-### 3.1.2 / 2014-09-08
+### 3.3.0 / 2014-09-08
 [Full Changelog](http://github.com/rspec/rspec-core/compare/v3.1.1...v3.1.2)
 
 Bug Fixes:

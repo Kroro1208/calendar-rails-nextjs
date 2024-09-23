@@ -318,7 +318,7 @@ Bug Fixes:
 * Do not consider `[]` and `{}` to match when performing fuzzy matching.
   (Myron Marston, #157)
 
-### 3.1.2 / 2014-10-08
+### 3.3.0 / 2014-10-08
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.1...v3.1.2)
 
 Bug Fixes:

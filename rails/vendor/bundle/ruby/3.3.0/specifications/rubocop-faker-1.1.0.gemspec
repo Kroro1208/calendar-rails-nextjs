@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.homepage = "https://github.com/koic/rubocop-faker".freeze
   s.licenses = ["MIT".freeze]
   s.required_ruby_version = Gem::Requirement.new(">= 2.4.0".freeze)
-  s.rubygems_version = "3.1.2".freeze
+  s.rubygems_version = "3.3.0".freeze
   s.summary = "A RuboCop extension for Faker.".freeze
 
   s.installed_by_version = "3.5.19".freeze if s.respond_to? :installed_by_version

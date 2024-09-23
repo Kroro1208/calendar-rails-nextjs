@@ -472,7 +472,7 @@ Bug Fixes:
 * Fix verified double `with` verification so that it applies to method
   stubs. (Myron Marston, #790)
 
-### 3.1.2 / 2014-09-26
+### 3.3.0 / 2014-09-26
 [Full Changelog](http://github.com/rspec/rspec-mocks/compare/v3.1.1...v3.1.2)
 
 Bug Fixes:

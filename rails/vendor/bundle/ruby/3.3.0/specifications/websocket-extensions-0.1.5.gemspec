@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage = "https://github.com/faye/websocket-extensions-ruby".freeze
   s.licenses = ["Apache-2.0".freeze]
   s.rdoc_options = ["--main".freeze, "README.md".freeze, "--markup".freeze, "markdown".freeze]
-  s.rubygems_version = "3.1.2".freeze
+  s.rubygems_version = "3.3.0".freeze
   s.summary = "Generic extension manager for WebSocket connections".freeze
 
   s.installed_by_version = "3.5.19".freeze if s.respond_to? :installed_by_version

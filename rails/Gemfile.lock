@@ -310,6 +310,7 @@ DEPENDENCIES
   pry-byebug
   pry-doc
   pry-rails
+  psych (~> 5.1)
   puma (~> 6.0)
   rails (~> 7.1)
   rspec-rails

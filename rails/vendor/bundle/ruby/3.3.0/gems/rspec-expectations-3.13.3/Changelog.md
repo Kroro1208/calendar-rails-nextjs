@@ -515,7 +515,7 @@ Bug Fixes:
 * Don't use internally delegated matchers when generating descriptions
   for examples without doc strings. (Myron Marston, #692)
 
-### 3.1.2 / 2014-09-26
+### 3.3.0 / 2014-09-26
 [Full Changelog](http://github.com/rspec/rspec-expectations/compare/v3.1.1...v3.1.2)
 
 Bug Fixes:

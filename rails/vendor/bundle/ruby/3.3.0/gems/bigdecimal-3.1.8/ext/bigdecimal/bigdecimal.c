@@ -2474,7 +2474,7 @@ BigDecimal_fix(VALUE self)
  * If n is specified and negative, at least that many digits to the left of the
  * decimal point will be 0 in the result, and return value will be an Integer.
  *
- *	BigDecimal('3.14159').round(3) #=> 3.142
+ *	BigDecimal('3.14159').round(3) #=> 3.3.0
  *	BigDecimal('13345.234').round(-2) #=> 13300
  *
  * The value of the optional mode argument can be used to determine how
@@ -2655,7 +2655,7 @@ BigDecimal_floor(int argc, VALUE *argv, VALUE self)
  * If n is specified and negative, at least that
  * many digits to the left of the decimal point will be 0 in the result.
  *
- *	BigDecimal('3.14159').ceil(3) #=> 3.142
+ *	BigDecimal('3.14159').ceil(3) #=> 3.3.0
  *	BigDecimal('13345.234').ceil(-2) #=> 13400.0
  */
 static VALUE
