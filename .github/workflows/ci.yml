@@ -22,20 +22,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set environment variables
-        run: |
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
-
       - name: Install libyaml
         run: |
           sudo apt-get update
           sudo apt-get install -y libyaml-dev
+
+      - name: Set environment variables
+        run: |
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.0'
           bundler-cache: false
+
+      - name: Install specific psych version
+        run: |
+          gem install psych -v 5.1.0 -- --use-system-libraries
 
       - name: Cache node modules
         uses: actions/cache@v3
@@ -74,20 +78,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set environment variables
-        run: |
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
-
       - name: Install libyaml
         run: |
           sudo apt-get update
           sudo apt-get install -y libyaml-dev
+
+      - name: Set environment variables
+        run: |
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.0'
           bundler-cache: false
+
+      - name: Install specific psych version
+        run: |
+          gem install psych -v 5.1.0 -- --use-system-libraries
 
       - name: Configure bundler
         run: |
