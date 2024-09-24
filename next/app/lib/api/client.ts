@@ -7,7 +7,8 @@ const options = {
 
 const client = applyCaseMiddleware(
     axios.create({
-        baseURL: process.env.NEXT_APP_API_DOMAIN
+        baseURL: process.env.NEXT_PUBLIC_API_DOMAIN,
+        withCredentials: true 
     }),
     options
 );

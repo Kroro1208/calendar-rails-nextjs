@@ -14,11 +14,11 @@ interface SignInParams {
 }
 
 export const signUp = (params: SignUpParams) => {
-    return client.post("auth", params);
+    return client.post("/auth", { registration: params });
 };
 
 export const signIn = (params: SignInParams) => {
-    return client.post("auth/sign_in", params)
+    return client.post("/auth/sign_in", params)
 }
 
 export const getUser = () => {

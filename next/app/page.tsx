@@ -22,7 +22,7 @@ export default function Home() {
 
   const handleLogin = async() => {
     try {
-      const res = await signIn({ email, password});
+      const res = await signIn({ email, password });
       const accessToken = res.headers["access-token"];
       const clientToken = res.headers.client;
       const uid = res.headers.uid;
@@ -31,7 +31,7 @@ export default function Home() {
         Cookies.set("_access_token", accessToken);
         Cookies.set("_client", clientToken);
         Cookies.set("_uid", uid);
-        router.push("/calender");
+        router.push("/calendar");
       } else {
         throw new Error("認証されませんでした");
       }
@@ -50,7 +50,7 @@ export default function Home() {
     const checkLogin = async() => {
       try {
         await getUser();
-        router.push('/calender');
+        router.push('/');
       } catch (error) {
         console.log('認証中にエラーが発生しました');
       } finally {
@@ -60,7 +60,7 @@ export default function Home() {
     checkLogin();
   },[router])
 
-  if(isLoading) <Loading />
+  if(isLoading) <Loading /> 
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200">
