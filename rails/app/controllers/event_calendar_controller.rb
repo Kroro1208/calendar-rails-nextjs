@@ -1,27 +1,38 @@
-class EventCalendarController < ApplicationController
+class EventCalendarsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_event_calendar, only: [:update]
 
   def index
-    user_id = current_user.id
-    event_calendar = EventCalendar.where(user_id:)
-    render json: event_calendar
+    event_calendars = current_user.event_calendars
+    render json: event_calendars
   end
 
   def create
-    event_calendar = EventCalendar.new(event_calendar_params)
-    event_calendar.user_id = current_user.id
-    render json: event_calendar
+    event_calendar = current_user.event_calendars.new(event_calendar_params)
+    if event_calendar.save
+      render json: event_calendar, status: :created
+    else
+      render json: { errors: event_calendar.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def update
-    event_calendar = EventCalendar.find(params[:id])
-    event_calendar = event_calendar.update!(event_calendar_params)
-    render json: event_calendar
+    if @event_calendar.update(event_calendar_params)
+      render json: event_calendar
+    else
+      render json: { errors: @event_calendar.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   private
 
+    def set_event_calendar
+      @event_calendar = current_user.event_calendars.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: "イベントが見つかりません" }, status: :not_found
+    end
+
     def event_calendar_params
-      params.require.permit(:title, :description, :start_date, :end_date)
+      params.require(:event_calendar).permit(:title, :description, :start_date, :end_date)
     end
 end

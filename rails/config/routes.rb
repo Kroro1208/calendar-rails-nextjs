@@ -14,9 +14,9 @@ Rails.application.routes.draw do
     resources :sessions, only: %i[index]
   end
 
-  get "/event_calendar", to: "event_calendar#index"
-  post "/event_calendar", to: "event_calendar#create"
-  put "/event_calendar", to: "event_calendar#update"
+  resources :event_calendars, only: %i[index create update] do
+    resources :events, only: %i[index create update destroy]
+  end
 
   namespace :api do
     namespace :v1 do
