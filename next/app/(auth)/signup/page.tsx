@@ -22,10 +22,8 @@ const SignUpPage = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleRegister = async () => {
-        console.log("handleRegister called");
         setIsLoading(true);
         setError(null);
-
         try {
             const res = await signUp({
                 name,
@@ -33,12 +31,9 @@ const SignUpPage = () => {
                 password,
                 password_confirmation: passwordConfirmation
             });
-            console.log("サインアップレスポンス:", res);
-
             const accessToken = res.headers["access-token"];
             const clientToken = res.headers.client;
             const uid = res.headers.uid;
-
             if (accessToken && clientToken && uid) {
                 Cookies.set("_access_token", accessToken);
                 Cookies.set("_client", clientToken);
