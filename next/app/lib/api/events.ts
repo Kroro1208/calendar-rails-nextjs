@@ -1,57 +1,51 @@
 import Cookies from "js-cookie";
 import client from "./client";
-import type { EventProps } from "../types/type";
+import type { ApiResponse, EventProps } from "../types/type";
 
-export const getEvents = (calendarId: number) => {
+const getAuthHeaders = () => {
     const accessToken = Cookies.get("_access_token");
     const clientToken = Cookies.get("_client");
     const uid = Cookies.get("_uid");
 
-    if(!accessToken || !clientToken || !uid) {
-        return "認証エラーです";
+    if (!accessToken || !clientToken || !uid) {
+        throw new Error("認証エラーです");
     }
 
-    return client.get(`/event_calendars/${calendarId}/events`, {
-        headers: {
-            "access-token": accessToken,
-            "client": clientToken,
-            "uid": uid
-        }
+    return {
+        "access-token": accessToken,
+        "client": clientToken,
+        "uid": uid
+    };
+};
+
+export const getEvents = ():Promise<ApiResponse<EventProps[]>> => {
+    return client.get("/events", {
+        headers: getAuthHeaders()
     });
 }
 
-export const createEvent = (calendarId: number, params: EventProps) => {
-    const accessToken = Cookies.get("_access_token");
-    const clientToken = Cookies.get("_client");
-    const uid = Cookies.get("_uid");
+export const createEvent = (params: EventProps) => {
 
-    if(!accessToken || !clientToken || !uid) {
-        return "認証エラーです";
-    }
-
-    return client.post(`/event_calendars/${calendarId}/events`, params, {
-        headers: {
-            "access-token": accessToken,
-            "client": clientToken,
-            "uid": uid
-        }
+    return client.post("/events", params, {
+        headers: getAuthHeaders()
     });
 }
 
-export const updateEvent = (calendarId: number, eventId: number, params: EventProps) => {
-    const accessToken = Cookies.get("_access_token");
-    const clientToken = Cookies.get("_client");
-    const uid = Cookies.get("_uid");
+export const updateEvent = (eventId: number, params: EventProps) => {
 
-    if(!accessToken || !clientToken || !uid) {
-        return "認証エラーです";
-    }
-
-    return client.put(`/event_calendars/${calendarId}/${eventId}`, params, {
-        headers: {
-            "access-token": accessToken,
-            "client": clientToken,
-            "uid": uid
-        }
+    return client.put(`/events/${eventId}`, params, {
+        headers: getAuthHeaders()
     });
+}
+
+export const deleteEvent = (eventId: number):Promise<ApiResponse<void>> => {
+    return client.delete(`/events/${eventId}`, {
+        headers: getAuthHeaders()
+    });
+}
+
+export const getEvent = (eventId: number): Promise<ApiResponse<EventProps>> => {
+    return client.get(`/events/${eventId}`, {
+        headers: getAuthHeaders()
+    })
 }

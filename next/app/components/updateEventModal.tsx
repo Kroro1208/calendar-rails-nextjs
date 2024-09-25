@@ -19,17 +19,17 @@ interface Event extends EventProps {
     updated_at: string;
 }
 
-type UpdateEventFunction = (calendarUd: number, params: EventProps) => Promise<ApiResponse<Event>>
+type UpdateEventFunction = (eventId: number, params: EventProps) => Promise<ApiResponse<Event>>
 
 interface UpdateModalProps {
     isOpen: boolean;
     onClose: () => void;
     updateEvent: UpdateEventFunction;
-    calendarId: number;
+    eventId: number;
     event: Event
 }
 
-const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, updateEvent, calendarId, event}) => {
+const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, updateEvent, eventId, event}) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -45,7 +45,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, updateEvent,
     const handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await updateEvent(calendarId, {
+            await updateEvent(eventId, {
                 title,
                 description,
                 startDate,

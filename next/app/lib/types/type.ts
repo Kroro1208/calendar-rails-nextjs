@@ -6,3 +6,9 @@ export type EventProps = {
     startDate: string;
     endDate: string
 }
+
+export type ApiResponse<T> = {
+    data: T;
+    status: number;
+    statusText: string;
+}
