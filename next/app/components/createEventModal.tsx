@@ -21,14 +21,14 @@ interface Event extends EventProps {
 
 type CreateEventFunction = (calendarUd: number, params: EventProps) => Promise<ApiResponse<Event>>
 
-interface ModalProps {
+interface CreateModalProps {
     isOpen: boolean;
     onClose: () => void;
     createEvent: CreateEventFunction;
     calendarId: number;
 }
 
-const CalendarModal: React.FC<ModalProps> = ({ isOpen, onClose, createEvent, calendarId}) => {
+const CreateModal: React.FC<CreateModalProps> = ({ isOpen, onClose, createEvent, calendarId}) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -121,4 +121,4 @@ const CalendarModal: React.FC<ModalProps> = ({ isOpen, onClose, createEvent, cal
       );
 }
 
-export default CalendarModal
+export default CreateModal
