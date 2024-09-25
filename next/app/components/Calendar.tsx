@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react"
 import { createEvent, deleteEvent, getEvents, updateEvent } from "../lib/api/events";
 import { useToast } from "@/hooks/use-toast";
-import { getUser } from "../lib/api/auth";
+import { getUser, signOut } from "../lib/api/auth";
 
 import FullCalendar from "@fullcalendar/react";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,18 @@ interface CalendarEvent {
   end: Date;
 }
 
+interface User {
+    isLogin: boolean;
+    name: string
+}
+
 const Calendar = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
     const { toast } = useToast();
 
@@ -58,18 +64,17 @@ const Calendar = () => {
     useEffect(() => {
         const checkUserEvents = async () => {
             try {
-                const user = await getUser();
-                if (!user.data.isLogin) {
-                    router.push('/');
-                } else {
-                    await fetchEvents();
-                }
+                const userData = await getUser();
+                console.log("User data:", userData);
+                setUser(userData);
+                await fetchEvents();
             } catch (error) {
                 toast({
                     title: "エラーが発生しました",
                     description: "認証されていないユーザーです",
                     variant: "destructive"
                 });
+                router.push('/')
             }
         }
         checkUserEvents();
@@ -169,6 +174,11 @@ const Calendar = () => {
         setSelectedEvent(null);
     }, []);
 
+    const handleLogout = () => {
+        signOut();
+        router.push('/')
+    }
+
     return (
         <div className="container mx-auto p-4">
             <CreateEventModal
@@ -186,10 +196,15 @@ const Calendar = () => {
                 />
             )}
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">カレンダー</h1>
-                <Button onClick={() => setIsCreateModalOpen(true)} disabled={isLoading}>
-                    予定を追加
-                </Button>
+                <h1 className="text-2xl font-bold">{user?.name}さんのカレンダー</h1>
+                <div className="flex gap-3">
+                    <Button onClick={() => setIsCreateModalOpen(true)} disabled={isLoading}>
+                        予定を追加
+                    </Button>
+                    <Button onClick={() => handleLogout()} disabled={isLoading}>
+                        ログアウト
+                    </Button>
+                </div>
             </div>
             <div className="bg-white shadow-lg rounded-lg p-4">
                 <FullCalendar

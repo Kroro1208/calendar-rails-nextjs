@@ -13,6 +13,22 @@ interface SignInParams {
     password: string;
 }
 
+const getAuthHeaders = () => {
+    const accessToken = Cookies.get("_access_token");
+    const clientToken = Cookies.get("_client");
+    const uid = Cookies.get("_uid");
+
+    if (!accessToken || !clientToken || !uid) {
+        throw new Error("認証エラーです");
+    }
+
+    return {
+        "access-token": accessToken,
+        "client": clientToken,
+        "uid": uid
+    };
+};
+
 export const signUp = (params: SignUpParams) => {
     return client.post("/auth", { registration: params });
 };
@@ -22,20 +38,9 @@ export const signIn = (params: SignInParams) => {
 }
 
 export const signOut = async() => {
-    const accessToken = Cookies.get("_access_token");
-    const clientToken = Cookies.get("_client");
-    const uid = Cookies.get("_uid");
-    if(!accessToken || !clientToken || uid) {
-        throw new Error("ユーザーはすでにログアウト済みです");
-    }
-
     try {
         await client.delete("/auth/sign_out", {
-            headers: {
-                "access-token": accessToken,
-                "client": clientToken,
-                "uid": uid
-            }
+            headers: getAuthHeaders()
         });
         // ログアウト成功後
         Cookies.remove("_access_token");
@@ -47,19 +52,13 @@ export const signOut = async() => {
 }
 
 export const getUser = () => {
-    const accessToken= Cookies.get("_access_token");
-    const clientToken = Cookies.get("_client");
-    const uid = Cookies.get("_uid");
-
-    if(!accessToken || !clientToken || !uid){
-        throw new Error ("認証されていないユーザーです");
-    }
-    
     return client.get("/auth/sessions", {
-        headers: {
-            "access-token": accessToken,
-            "client": clientToken,
-            "uid": uid
+        headers: getAuthHeaders()
+    }).then(response => {
+        const userData = response.data.data;
+        return {
+            isLogin: true,
+            name: userData.name
         }
     })
 }
