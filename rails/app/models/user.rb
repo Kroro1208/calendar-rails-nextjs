@@ -5,4 +5,5 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
   include DeviseTokenAuth::Concerns::User
   has_one :event_calendar, dependent: :destroy
+  has_many :events, through: :event_calendar
 end

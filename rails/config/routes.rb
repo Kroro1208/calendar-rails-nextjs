@@ -14,9 +14,7 @@ Rails.application.routes.draw do
     resources :sessions, only: %i[index]
   end
 
-  resources :event_calendars, only: %i[index create update] do
-    resources :events, only: %i[index create update destroy]
-  end
+  resources :events, only: %i[index create update destroy]
 
   namespace :api do
     namespace :v1 do

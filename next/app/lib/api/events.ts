@@ -1,13 +1,6 @@
 import Cookies from "js-cookie";
 import client from "./client";
-
-interface EventProps {
-    id?: number
-    title: string;
-    description: string;
-    startDate: string;
-    endDate: string
-}
+import type { EventProps } from "../types/type";
 
 export const getEvents = (calendarId: number) => {
     const accessToken = Cookies.get("_access_token");
