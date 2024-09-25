@@ -26,14 +26,14 @@ export const getEvents = ():Promise<ApiResponse<EventProps[]>> => {
 
 export const createEvent = (params: EventProps) => {
 
-    return client.post("/events", params, {
+    return client.post("/events", {event: params}, {
         headers: getAuthHeaders()
     });
 }
 
 export const updateEvent = (eventId: number, params: EventProps) => {
 
-    return client.put(`/events/${eventId}`, params, {
+    return client.put(`/events/${eventId}`, {event: params}, {
         headers: getAuthHeaders()
     });
 }

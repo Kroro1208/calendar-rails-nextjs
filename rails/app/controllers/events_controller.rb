@@ -12,7 +12,7 @@ class EventsController < ApplicationController
     if event.save
       render json: event, status: :created
     else
-      render json: { error: event.errors.full_messages }, status: :upprocessable_entity
+      render json: { error: event.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -20,7 +20,7 @@ class EventsController < ApplicationController
     if @event.update(event_params)
       render json: @event
     else
-      render json: { error: @event.errors.full_messages }, status: :upprocessable_entity
+      render json: { error: @event.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
