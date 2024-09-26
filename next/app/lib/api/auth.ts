@@ -51,7 +51,7 @@ export const signUp = async (params: SignUpParams) => {
 export const signIn = async (params: SignInParams) => {
     try {
         const response = await client.post("/auth/sign_in", params);
-        if (response.data.status === 'success') {
+        if (response.data.data) {
             await createSession(response.data.data);
         }
         return response;
@@ -70,6 +70,7 @@ export const signOut = async() => {
         Cookies.remove("_access_token");
         Cookies.remove("_client");
         Cookies.remove("_uid");
+        Cookies.remove("sessionId"); // セッションIDも削除する
     } catch (error) {
         console.error("サインアウトエラー:", error);
         throw error;
@@ -79,18 +80,20 @@ export const signOut = async() => {
 export const getUser = async () => {
     const sessionId = Cookies.get("sessionId");
     if (!sessionId) {
+        console.error("セッションIDが見つかりません");
         throw new Error("セッションIDが見つかりません");
     }
     try {
         const response = await axios.get('/lib/api/session', { 
             params: { sessionId },
-            validateStatus: (status) => status < 500 // 500未満のステータスコードを許可
+            validateStatus: (status) => status < 500
         });
-        if (response.status === 200) {
-            return response.data;
-        } 
+        if (response.status !== 200) {
+            throw new Error(`ユーザー情報取得エラー: ${response.status}`);
+        }
+        return response.data;
     } catch (error) {
-        console.error("ユーザー情報取得エラー:", error);
+        console.error("サインインエラー:", error);
         throw error;
     }
 }
@@ -98,14 +101,14 @@ export const getUser = async () => {
 const createSession = async (userData: UserData) => {
     try {
         const response = await axios.post('/lib/api/session', { userData });
-        if (response?.data?.sessionId) {
-            Cookies.set("sessionId", response.data.sessionId);
-        } else {
+        if (!response?.data?.sessionId) {
+            console.error("セッションIDが返されませんでした", response.data);
             throw new Error("セッションIDが返されませんでした");
         }
+        Cookies.set("sessionId", response.data.sessionId);
+        return response.data;
     } catch (error) {
-        console.error("セッション作成エラー:", error);
-        throw error;
+        console.log(error);
     }
 }
 
