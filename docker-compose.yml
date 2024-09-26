@@ -10,6 +10,7 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+
   rails:
     build:
       context: ./rails
@@ -28,14 +29,29 @@ services:
       - DATABASE_HOST=db
       - DATABASE_PORT=3306
       - RAILS_ENV=development
+
   next:
-      build:
-        dockerfile: ./next/Dockerfile
-      tty: true
-      stdin_open: true
-      volumes:
-        - ./next:/app
-      ports:
-        - "8000:3000"
+    build:
+      dockerfile: ./next/Dockerfile
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./next:/app
+    ports:
+      - "8000:3000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
 volumes:
   mysql_data:
+
+networks:
+  default:
+    name: google-calendar-clone_default
