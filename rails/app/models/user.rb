@@ -4,7 +4,7 @@ class User < ApplicationRecord
   include DeviseTokenAuth::Concerns::User
 
   has_one :event_calendar, dependent: :destroy
-  has_many :events, through: :event_calendar
+  has_many :events, through: :event_calendar, dependent: :destroy
 
   # after_commitによりユーザー作成後にカレンダーを作成
   after_commit :create_event_calendar, on: :create
