@@ -31,7 +31,7 @@ const Calendar = () => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
-    const { user, isCheckingAuth, signOut, refetchUser } = useAuth();
+    const { user, isCheckingAuth, signOut } = useAuth();
 
     const fetchEvents = useCallback(async () => {
         setIsLoading(true);
@@ -60,16 +60,15 @@ const Calendar = () => {
     useEffect(() => {
         const init = async () => {
             if (!isCheckingAuth) {
-                if (!user) {
-                    router.push("/");
-                } else {
-                    await refetchUser(); // ユーザー情報を再取得
+                if (user) {
                     fetchEvents();
+                } else {
+                    router.push("/");
                 }
             }
         };
         init();
-    }, [isCheckingAuth, user, router, refetchUser, fetchEvents]);
+    }, [isCheckingAuth, user, router, fetchEvents]);
 
     const handleCreateEvent: CreateEventFunction = useCallback(async (event) => {
         setIsLoading(true);
