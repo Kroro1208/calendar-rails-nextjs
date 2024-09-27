@@ -11,7 +11,6 @@ export const useAuth = () => {
         data: user,
         isPending: isCheckingAuth,
         error: userError,
-        refetch: refetchUser
     } = useQuery({
         queryKey: ["user"],
         queryFn: getUser,
@@ -32,7 +31,6 @@ export const useAuth = () => {
             Cookies.set("_uid", headers.uid);
             await createSession(data.data);
             queryClient.invalidateQueries({ queryKey: ["user"] });
-            await refetchUser();
         }
     });
 
@@ -67,6 +65,5 @@ export const useAuth = () => {
         user: user?.data,
         isCheckingAuth,
         userError,
-        refetchUser
     };
 }
