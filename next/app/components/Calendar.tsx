@@ -1,7 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react"
-import { createEvent, deleteEvent, getEvents, updateEvent } from "../lib/api/events";
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { useToast } from "@/hooks/use-toast";
 
 import FullCalendar from "@fullcalendar/react";
@@ -14,6 +13,7 @@ import CreateEventModal from "./CreateEventModal";
 import UpdateEventModal from "./UpdateEventModal";
 import { useAuth } from "@/hooks/useAuth";
 import Loading from "../Loading";
+import { useCreateEvent, useDeleteEvent, useEvents, useUpdateEvent } from "@/hooks/useEvents";
 
 interface CalendarEvent {
   id: string;
@@ -26,98 +26,93 @@ interface CalendarEvent {
 const Calendar = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-    const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
     const { user, isCheckingAuth, signOut } = useAuth();
 
-    const fetchEvents = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const res = await getEvents();
-            const calendarEvents: CalendarEvent[] = res.data.map((event) => ({
-                id: event.id ? event.id.toString() : "",
-                title: event.title,
-                description: event.description,
-                start: new Date(event.startDate),
-                end: new Date(event.endDate)
-            }));
-            setEvents(calendarEvents);
-        } catch (error) {
-            console.error(error);
-            toast({
-                title: "エラーが発生しました",
-                description: "イベントの取得ができませんでした",
-                variant: "destructive"
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    }, [toast]);
+    const { data: eventsData, isLoading: isEventsLoading, error: eventsError } = useEvents();
+    const createEventMutation = useCreateEvent();
+    const updateEventMutation = useUpdateEvent();
+    const deleteEventMutation = useDeleteEvent();
+
+    const events: CalendarEvent[] = useMemo(() => {
+        return eventsData?.data.map((event) => ({
+            id: event.id ? event.id.toString() : "",
+            title: event.title,
+            description: event.description,
+            start: new Date(event.startDate),
+            end: new Date(event.endDate)
+        })) || []
+    }, [eventsData]);
 
     useEffect(() => {
-        const init = async () => {
-            if (!isCheckingAuth) {
-                if (user) {
-                    fetchEvents();
-                } else {
-                    router.push("/");
-                }
-            }
-        };
-        init();
-    }, [isCheckingAuth, user, router, fetchEvents]);
+        if(!isCheckingAuth && !user) {
+            router.push('/');
+        }
+    }, [isCheckingAuth, user, router]);
+
+    // const fetchEvents = useCallback(async () => {
+    //     setIsLoading(true);
+    //     try {
+    //         const res = await getEvents();
+    //         const calendarEvents: CalendarEvent[] = res.data.map((event) => ({
+    //             id: event.id ? event.id.toString() : "",
+    //             title: event.title,
+    //             description: event.description,
+    //             start: new Date(event.startDate),
+    //             end: new Date(event.endDate)
+    //         }));
+    //         setEvents(calendarEvents);
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast({
+    //             title: "エラーが発生しました",
+    //             description: "イベントの取得ができませんでした",
+    //             variant: "destructive"
+    //         });
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // }, [toast]);
+
 
     const handleCreateEvent: CreateEventFunction = useCallback(async (event) => {
-        setIsLoading(true);
         try {
-            const response = await createEvent(event);
-            await fetchEvents();
+            await createEventMutation.mutateAsync(event);
             setIsCreateModalOpen(false);
             toast({
                 title: "成功",
-                description: "イベントが登録されました",
+                description: "イベントが作成されました",
                 variant: "success"
-            });
-            return response;
+            })
         } catch (error) {
             toast({
                 title: "失敗",
                 description: "イベント登録に失敗しました",
                 variant: "destructive"
             });
-            throw error;
-        } finally {
-            setIsLoading(false);
         }
-    }, [fetchEvents, toast]);
+    }, [createEventMutation, toast]);
 
     const handleUpdateEvent: UpdateEventFunction = useCallback(async (eventId, event) => {
-        setIsLoading(true);
         try {
-            const response = await updateEvent(eventId, event);
-            await fetchEvents();
-            setIsUpdateModalOpen(false);
-            setSelectedEvent(null);
-            toast({
-                title: "成功",
-                description: "イベント情報が更新されました",
-                variant: "success"
-            });
-            return response;
+           await updateEventMutation.mutateAsync({ eventId, params: event });
+           setIsUpdateModalOpen(false);
+           setSelectedEvent(null);
+           toast({
+            title: "成功",
+            description: "イベント情報が更新されました",
+            variant: "success"
+        });
         } catch (error) {
             toast({
                 title: "失敗",
                 description: "更新に失敗しました",
                 variant: "destructive"
             });
-            throw error;
-        } finally {
-            setIsLoading(false);
-        }
-    }, [fetchEvents, toast]);
+        } 
+    }, [updateEventMutation, toast]);
 
     const handleEventClick = useCallback((info: EventClickArg) => {
         const formatDate = (date: Date | null): string => {
@@ -137,10 +132,8 @@ const Calendar = () => {
     }, []);
 
     const handleDelete = useCallback(async (eventId: number) => {
-        setIsLoading(true);
         try {
-            await deleteEvent(eventId);
-            await fetchEvents();
+            await deleteEventMutation.mutateAsync(eventId);
             setIsUpdateModalOpen(false);
             setSelectedEvent(null);
             toast({
@@ -154,10 +147,8 @@ const Calendar = () => {
                 description: "イベントの削除に失敗しました",
                 variant: "destructive"
             });
-        } finally {
-            setIsLoading(false);
         }
-    }, [fetchEvents, toast]);
+    }, [deleteEventMutation, toast]);
 
     const closeUpdateModal = useCallback(() => {
         setIsUpdateModalOpen(false);
@@ -169,7 +160,7 @@ const Calendar = () => {
         router.push('/')
     }
 
-    if(isCheckingAuth) {
+    if(isCheckingAuth || isEventsLoading) {
         return <Loading />
     }
 
@@ -192,31 +183,33 @@ const Calendar = () => {
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">{user?.name}さんのカレンダー</h1>
                 <div className="flex gap-3">
-                    <Button onClick={() => setIsCreateModalOpen(true)} disabled={isLoading}>
+                    <Button onClick={() => setIsCreateModalOpen(true)} disabled={createEventMutation.isPending}>
                         予定を追加
                     </Button>
-                    <Button onClick={() => handleLogout()} disabled={isLoading}>
+                    <Button onClick={() => handleLogout()} disabled={false}>
                         ログアウト
                     </Button>
                 </div>
             </div>
-            <div className="bg-white shadow-lg rounded-lg p-4">
-                <FullCalendar
-                    plugins={[dayGridPlugin, interactionPlugin]}
-                    initialView="dayGridMonth"
-                    locale="ja"
-                    events={events}
-                    headerToolbar={{
-                        left: "prev,next today",
-                        center: "title",
-                        right: "dayGridMonth,dayGridWeek,dayGridDay",
-                    }}
-                    eventClick={handleEventClick}
-                    editable={true}
-                    selectable={true}
-                    height="auto"
-                />
-            </div>
+            {!isEventsLoading && !eventsError && (
+                <div className="bg-white shadow-lg rounded-lg p-4">
+                    <FullCalendar
+                        plugins={[dayGridPlugin, interactionPlugin]}
+                        initialView="dayGridMonth"
+                        locale="ja"
+                        events={events}
+                        headerToolbar={{
+                            left: "prev,next today",
+                            center: "title",
+                            right: "dayGridMonth,dayGridWeek,dayGridDay",
+                        }}
+                        eventClick={handleEventClick}
+                        editable={true}
+                        selectable={true}
+                        height="auto"
+                    />
+                </div>
+            )}
         </div>
     );
 }
