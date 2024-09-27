@@ -16,5 +16,5 @@ export type ApiResponse<T> = {
     statusText: string;
 }
 
-export type CreateEventFunction = (event: Omit<EventProps, "id">) => Promise<void>;
-export type UpdateEventFunction = (eventId: number, event: Omit<EventProps, "id">) => Promise<void>;
+export type CreateEventFunction = (event: EventProps) => Promise<void>;
+export type UpdateEventFunction = (eventId: number, event: EventProps) => Promise<void>;

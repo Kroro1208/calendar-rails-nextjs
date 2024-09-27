@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, useMemo } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useToast } from "@/hooks/use-toast";
 
 import FullCalendar from "@fullcalendar/react";
@@ -36,46 +36,19 @@ const Calendar = () => {
     const updateEventMutation = useUpdateEvent();
     const deleteEventMutation = useDeleteEvent();
 
-    const events: CalendarEvent[] = useMemo(() => {
-        return eventsData?.data.map((event) => ({
+    const events: CalendarEvent[] = eventsData?.data.map((event) => ({
             id: event.id ? event.id.toString() : "",
             title: event.title,
             description: event.description,
             start: new Date(event.startDate),
             end: new Date(event.endDate)
-        })) || []
-    }, [eventsData]);
+        })) || [];
 
     useEffect(() => {
         if(!isCheckingAuth && !user) {
             router.push('/');
         }
     }, [isCheckingAuth, user, router]);
-
-    // const fetchEvents = useCallback(async () => {
-    //     setIsLoading(true);
-    //     try {
-    //         const res = await getEvents();
-    //         const calendarEvents: CalendarEvent[] = res.data.map((event) => ({
-    //             id: event.id ? event.id.toString() : "",
-    //             title: event.title,
-    //             description: event.description,
-    //             start: new Date(event.startDate),
-    //             end: new Date(event.endDate)
-    //         }));
-    //         setEvents(calendarEvents);
-    //     } catch (error) {
-    //         console.error(error);
-    //         toast({
-    //             title: "エラーが発生しました",
-    //             description: "イベントの取得ができませんでした",
-    //             variant: "destructive"
-    //         });
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // }, [toast]);
-
 
     const handleCreateEvent: CreateEventFunction = useCallback(async (event) => {
         try {
