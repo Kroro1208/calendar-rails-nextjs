@@ -6,61 +6,31 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
-import { getUser, signIn } from './lib/api/auth';
-import Cookies from "js-cookie";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "./Loading";
-
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const { login, isLogginIn, loginError, user, isCheckingAuth } = useAuth();
 
-  const handleLogin = async() => {
-    try {
-      const res = await signIn({ email, password });
-      const accessToken = res.headers["access-token"];
-      const clientToken = res.headers.client;
-      const uid = res.headers.uid;
-
-      if(accessToken && clientToken && uid) {
-        Cookies.set("_access_token", accessToken);
-        Cookies.set("_client", clientToken);
-        Cookies.set("_uid", uid);
+  const handleLogin = async () => {
+    login({ email, password }, {
+      onSuccess: () => {
         router.push("/calendar");
-      } else {
-        throw new Error("認証されませんでした");
       }
+    });
+  };
 
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("ログイン中に予期せぬエラーが発生しました");
-      }
-      console.error("ログインエラー:", error);
-    }
+  if (isCheckingAuth) return <Loading />;
+
+  if (user) {
+    router.push("/calendar");
+    return null;
   }
-
-  useEffect(() => {
-    const checkLogin = async() => {
-      try {
-        await getUser();
-        router.push('/');
-      } catch (error) {
-        console.log('認証中にエラーが発生しました');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkLogin();
-  },[router])
-
-  if(isLoading) <Loading /> 
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200">
@@ -91,12 +61,14 @@ export default function Home() {
                 value={password}
                 type="password" placeholder="パスワード" />
             </div>
-            {error && (
-              <div className="text-red-500 text-sm">{error}</div>
+            {loginError && (
+              <div className="text-red-500 text-sm">{loginError.message || "ログイン中にエラーが発生しました"}</div>
             )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button onClick={handleLogin} className="w-full">ログインする</Button>
+            <Button onClick={handleLogin} disabled={isLogginIn} className="w-full">
+              {isLogginIn ? "ログイン中..." : "ログインする"}
+            </Button>
             <div className="flex items-center justify-center space-x-2 text-sm">
               <span>アカウント登録はこちら</span>
               <ArrowRight size={16} className="ml-1"/>
