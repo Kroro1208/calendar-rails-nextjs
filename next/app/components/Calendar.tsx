@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react"
 import { createEvent, deleteEvent, getEvents, updateEvent } from "../lib/api/events";
 import { useToast } from "@/hooks/use-toast";
-import { getUser, signOut } from "../lib/api/auth";
 
 import FullCalendar from "@fullcalendar/react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,8 @@ import type { EventClickArg } from "@fullcalendar/core/index.js";
 import type { CreateEventFunction, UpdateEventFunction, Event } from "../lib/types/type";
 import CreateEventModal from "./CreateEventModal";
 import UpdateEventModal from "./UpdateEventModal";
+import { useAuth } from "@/hooks/useAuth";
+import Loading from "../Loading";
 
 interface CalendarEvent {
   id: string;
@@ -22,20 +23,15 @@ interface CalendarEvent {
   end: Date;
 }
 
-interface User {
-    isLogin: boolean;
-    name: string
-}
-
 const Calendar = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
     const { toast } = useToast();
+    const { user, isCheckingAuth, signOut, refetchUser } = useAuth();
 
     const fetchEvents = useCallback(async () => {
         setIsLoading(true);
@@ -62,23 +58,18 @@ const Calendar = () => {
     }, [toast]);
 
     useEffect(() => {
-        const checkUserEvents = async () => {
-            try {
-                const userData = await getUser();
-                console.log("User data:", userData);
-                setUser(userData);
-                await fetchEvents();
-            } catch (error) {
-                toast({
-                    title: "エラーが発生しました",
-                    description: "認証されていないユーザーです",
-                    variant: "destructive"
-                });
-                router.push('/')
+        const init = async () => {
+            if (!isCheckingAuth) {
+                if (!user) {
+                    router.push("/");
+                } else {
+                    await refetchUser(); // ユーザー情報を再取得
+                    fetchEvents();
+                }
             }
-        }
-        checkUserEvents();
-    }, [fetchEvents, router, toast]);
+        };
+        init();
+    }, [isCheckingAuth, user, router, refetchUser, fetchEvents]);
 
     const handleCreateEvent: CreateEventFunction = useCallback(async (event) => {
         setIsLoading(true);
@@ -177,6 +168,10 @@ const Calendar = () => {
     const handleLogout = () => {
         signOut();
         router.push('/')
+    }
+
+    if(isCheckingAuth) {
+        return <Loading />
     }
 
     return (

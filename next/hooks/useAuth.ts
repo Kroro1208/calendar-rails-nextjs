@@ -15,7 +15,8 @@ export const useAuth = () => {
     } = useQuery({
         queryKey: ["user"],
         queryFn: getUser,
-        retry: false
+        retry: false,
+        staleTime: 1000 * 60 * 5
     });
 
     if(userError) {
@@ -31,6 +32,7 @@ export const useAuth = () => {
             Cookies.set("_uid", headers.uid);
             await createSession(data.data);
             queryClient.invalidateQueries({ queryKey: ["user"] });
+            await refetchUser();
         }
     });
 
@@ -62,7 +64,7 @@ export const useAuth = () => {
         isSignUpError: signUpMutation.error,
         signOut: signOutMutation.mutate,
         isSignOutPending: signOutMutation.isPending,
-        user,
+        user: user?.data,
         isCheckingAuth,
         userError,
         refetchUser
