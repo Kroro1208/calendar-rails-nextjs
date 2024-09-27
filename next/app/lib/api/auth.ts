@@ -98,7 +98,7 @@ export const getUser = async () => {
     }
 }
 
-const createSession = async (userData: UserData) => {
+export const createSession = async (userData: UserData) => {
     try {
         const response = await axios.post('/lib/api/session', { userData });
         if (!response?.data?.sessionId) {
@@ -112,7 +112,7 @@ const createSession = async (userData: UserData) => {
     }
 }
 
-const deleteSession = async () => {
+export const deleteSession = async () => {
     const sessionId = Cookies.get("sessionId");
     if (sessionId) {
         try {
