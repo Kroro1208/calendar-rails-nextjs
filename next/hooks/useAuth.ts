@@ -1,4 +1,4 @@
-import { createSession, getUser, signIn, signOut, signUp } from "@/app/lib/api/auth";
+import { getUser, signIn, signOut, signUp } from "@/app/lib/api/auth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation"
 import Cookies from 'js-cookie';
@@ -13,6 +13,11 @@ export const useAuth = () => {
         Cookies.remove("_uid");
         Cookies.remove("sessionId");
     };
+
+    const cleanUserQuery= () => {
+        queryClient.removeQueries({ queryKey: ["user"] }); // キャッシュからユーザー情報を削除
+        queryClient.setQueryData(["user"], null); //　"user" キーのクエリデータを null に設定
+    }
 
     const {
         data: user,
@@ -36,9 +41,6 @@ export const useAuth = () => {
         staleTime: 1000 * 60 * 5
     });
 
-    
-
-
     const loginMutation = useMutation({
         mutationFn: signIn,
         onSuccess: async (data) => {
@@ -46,7 +48,6 @@ export const useAuth = () => {
             Cookies.set("_access_token", headers["access-token"]);
             Cookies.set("_client", headers.client);
             Cookies.set("_uid", headers.uid);
-            await createSession(data.data);
             queryClient.invalidateQueries({ queryKey: ["user"] });
             router.push("/calendar");
         }
@@ -60,7 +61,6 @@ export const useAuth = () => {
                 Cookies.set("_access_token", headers["access-token"]);
                 Cookies.set("_client", headers.client);
                 Cookies.set("_uid", headers.uid);
-                await createSession(data.data.data);
                 await queryClient.invalidateQueries({ queryKey: ["user"] });
                 router.push("/calendar");
             }
@@ -72,13 +72,11 @@ export const useAuth = () => {
             try {
                 await signOut();
                 clearAuthCookies(); // 認証関連のクッキーを削除
-                queryClient.removeQueries({ queryKey: ["user"] }); // キャッシュからユーザー情報を削除
-                queryClient.setQueryData(["user"], null); //　"user" キーのクエリデータを null に設定
+                cleanUserQuery()
                 router.push("/");
             } catch (error) {
                 clearAuthCookies();
-                queryClient.removeQueries({ queryKey: ["user"] });
-                queryClient.setQueryData(["user"], null);
+                cleanUserQuery();
                 router.push("/");
                 throw error;
             }
