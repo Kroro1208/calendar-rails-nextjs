@@ -71,12 +71,11 @@ export const useAuth = () => {
         mutationFn: async () => {
             try {
                 await signOut();
-                clearAuthCookies();
-                queryClient.removeQueries({ queryKey: ["user"] });
-                queryClient.setQueryData(["user"], null);
+                clearAuthCookies(); // 認証関連のクッキーを削除
+                queryClient.removeQueries({ queryKey: ["user"] }); // キャッシュからユーザー情報を削除
+                queryClient.setQueryData(["user"], null); //　"user" キーのクエリデータを null に設定
                 router.push("/");
             } catch (error) {
-                console.error("Sign out error:", error);
                 clearAuthCookies();
                 queryClient.removeQueries({ queryKey: ["user"] });
                 queryClient.setQueryData(["user"], null);
