@@ -31,6 +31,7 @@ export const useAuth = () => {
             Cookies.set("_uid", headers.uid);
             await createSession(data.data);
             queryClient.invalidateQueries({ queryKey: ["user"] });
+            router.push("/calendar");
         }
     });
 
@@ -38,8 +39,12 @@ export const useAuth = () => {
         mutationFn: signUp,
         onSuccess: async (data) => {
             if(data.data.status === "success") {
+                const { headers } = data;
+                Cookies.set("_access_token", headers["access-token"]);
+                Cookies.set("_client", headers.client);
+                Cookies.set("_uid", headers.uid);
                 await createSession(data.data.data);
-                queryClient.invalidateQueries({ queryKey: ["user"] });
+                await queryClient.invalidateQueries({ queryKey: ["user"] });
                 router.push("/calendar");
             }
         }
@@ -62,7 +67,7 @@ export const useAuth = () => {
         isSignUpError: signUpMutation.error,
         signOut: signOutMutation.mutate,
         isSignOutPending: signOutMutation.isPending,
-        user: user?.data,
+        user: user,
         isCheckingAuth,
         userError,
     };

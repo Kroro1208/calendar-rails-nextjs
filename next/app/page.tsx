@@ -18,11 +18,7 @@ export default function Home() {
   const { login, isLogginIn, loginError, user, isCheckingAuth } = useAuth();
 
   const handleLogin = async () => {
-    login({ email, password }, {
-      onSuccess: () => {
-        router.push("/calendar");
-      }
-    });
+    login({ email, password });
   };
 
   if (isCheckingAuth) return <Loading />;

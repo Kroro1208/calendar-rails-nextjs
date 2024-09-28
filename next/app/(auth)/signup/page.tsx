@@ -7,10 +7,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import SignUpImg from "../../../public/Mobile login-pana.png";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
-import Cookies from "js-cookie";
-import { signUp } from "@/app/lib/api/auth";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import Loading from "@/app/Loading";
 
 const SignUpPage = () => {
     const router = useRouter();
@@ -18,40 +18,24 @@ const SignUpPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirmation, setPasswordConfirmation] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const { signUp, isSignUpPending, isSignUpError, user, isCheckingAuth } = useAuth();
 
-    const handleRegister = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const res = await signUp({
-                name,
-                email,
-                password,
-                password_confirmation: passwordConfirmation
-            });
-            const accessToken = res.headers["access-token"];
-            const clientToken = res.headers.client;
-            const uid = res.headers.uid;
-            if (accessToken && clientToken && uid) {
-                Cookies.set("_access_token", accessToken);
-                Cookies.set("_client", clientToken);
-                Cookies.set("_uid", uid);
-                router.push("/calendar");
-            } else {
-                setError("認証情報の取得に失敗しました");
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setIsLoading(false);
-        }
-    }
+    useEffect(() => {
+        if(user) return router.push("/calendar");
+    }, [user, router]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        handleRegister();
+        signUp({
+            name,
+            email,
+            password,
+            password_confirmation: passwordConfirmation
+        });
+    }
+
+    if(isCheckingAuth) {
+        return <Loading />
     }
 
     return (
@@ -66,9 +50,9 @@ const SignUpPage = () => {
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
                         <CardContent className="space-y-4">
-                            {error && (
+                            {isSignUpError && (
                                 <Alert variant="destructive">
-                                    <AlertDescription>{error}</AlertDescription>
+                                    <AlertDescription>{isSignUpError.message}</AlertDescription>
                                 </Alert>
                             )}
                             <div className="space-y-2">
@@ -101,8 +85,8 @@ const SignUpPage = () => {
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-col space-y-4">
-                            <Button type="submit" className="w-full" disabled={isLoading}>
-                                {isLoading ? "登録中..." : "登録する"}
+                            <Button type="submit" className="w-full" disabled={isSignUpPending}>
+                                {isSignUpPending ? "登録中..." : "登録する"}
                             </Button>
                             <div className="text-center text-sm">
                                 すでにアカウントをお持ちの方は
