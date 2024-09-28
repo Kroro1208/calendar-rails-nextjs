@@ -6,27 +6,35 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "./Loading";
 import { useAuth } from "@/hooks/useAuth";
+import { type SubmitHandler, useForm } from "react-hook-form";
+
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
   const { login, isLogginIn, loginError, user, isCheckingAuth } = useAuth();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
-  const handleLogin = async () => {
-    login({ email, password });
-  };
+  useEffect(() => {
+    if (user) {
+      router.push("/calendar");
+    }
+  }, [router, user]);
+
+  const onSubmit: SubmitHandler<LoginFormData> = (data) => {
+    login(data)
+  }
 
   if (isCheckingAuth) return <Loading />;
 
-  if (user) {
-    router.push("/calendar");
-    return null;
-  }
+  if(user) return null;
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200">
@@ -44,38 +52,52 @@ export default function Home() {
               NextRails Calendar App へようこそ
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                onChange={(e) => setEmail(e.target.value)}
-                value={email}
-                type="email" placeholder="メールアドレス" />
-            </div>
-            <div className="space-y-2">
-              <Input
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                type="password" placeholder="パスワード" />
-            </div>
-            {loginError && (
-              <div className="text-red-500 text-sm">{loginError.message || "ログイン中にエラーが発生しました"}</div>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button onClick={handleLogin} disabled={isLogginIn} className="w-full">
-              {isLogginIn ? "ログイン中..." : "ログインする"}
-            </Button>
-            <div className="flex items-center justify-center space-x-2 text-sm">
-              <span>アカウント登録はこちら</span>
-              <ArrowRight size={16} className="ml-1"/>
-              <Link 
-                href="/signup" 
-                className="flex items-center text-blue-500 hover:underline"
-              >
-                <span>ユーザー登録</span>
-              </Link>
-            </div>
-          </CardFooter>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  {...register("email", {
+                    required: "メールアドレスは必須です",
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: "無効なアドレスの形式です"
+                    }
+                  })}
+                  type="email" placeholder="メールアドレス" />
+                  {errors.email && <span className="text-red-500 text-sm">{errors.email.message}</span>}
+              </div>
+              <div className="space-y-2">
+                <Input
+                  {...register("password", {
+                    required: "パスワードは必須です",
+                    minLength: {
+                      value: 6,
+                      message: "最低6文字以上で入力してください"
+                    }
+                  })}
+                  type="password" placeholder="パスワード" />
+                  {errors.password && <span className="text-red-500 text-sm">{errors.password.message}</span>}
+              </div>
+              {loginError && (
+                <div className="text-red-500 text-sm">{loginError.message || "ログイン中にエラーが発生しました"}</div>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
+              <Button type="submit" disabled={isLogginIn} className="w-full">
+                {isLogginIn ? "ログイン中..." : "ログインする"}
+              </Button>
+              <div className="flex items-center justify-center space-x-2 text-sm">
+                <span>アカウント登録はこちら</span>
+                <ArrowRight size={16} className="ml-1"/>
+                <Link 
+                  href="/signup" 
+                  className="flex items-center text-blue-500 hover:underline"
+                >
+                  <span>ユーザー登録</span>
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
         </Card>
       </div>
     </div>
