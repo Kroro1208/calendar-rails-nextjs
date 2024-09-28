@@ -8,29 +8,34 @@ import SignUpImg from "../../../public/Mobile login-pana.png";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Loading from "@/app/Loading";
+import { type SubmitHandler, useForm } from "react-hook-form";
+
+type FormInputData = {
+    name: string;
+    email: string;
+    password: string;
+    passwordConfirmation: string;
+}
 
 const SignUpPage = () => {
     const router = useRouter();
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordConfirmation, setPasswordConfirmation] = useState("");
     const { signUp, isSignUpPending, isSignUpError, user, isCheckingAuth } = useAuth();
+    const {register, handleSubmit, formState: { errors }, watch } = useForm<FormInputData>();
+    const password = watch("password");
 
     useEffect(() => {
         if(user) return router.push("/calendar");
     }, [user, router]);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit: SubmitHandler<FormInputData> = (data) => {
         signUp({
-            name,
-            email,
-            password,
-            password_confirmation: passwordConfirmation
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            password_confirmation: data.passwordConfirmation
         });
     }
 
@@ -48,7 +53,7 @@ const SignUpPage = () => {
                             NextRails Calendar App へようこそ
                         </CardDescription>
                     </CardHeader>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <CardContent className="space-y-4">
                             {isSignUpError && (
                                 <Alert variant="destructive">
@@ -58,30 +63,46 @@ const SignUpPage = () => {
                             <div className="space-y-2">
                                 <Label htmlFor="name">名前</Label>
                                 <Input
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    id="name" type="text" placeholder="名前を入力" required />
+                                    {...register("name", { required: "名前は必須です" })}
+                                    id="name" type="text" placeholder="名前を入力" />
+                                    {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="email">メールアドレス</Label>
                                 <Input
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    id="email" type="email" placeholder="taro@example.com" required />
+                                {...register("email", {
+                                    required: "メールアドレスは必須です",
+                                    pattern: {
+                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                        message: "無効なメールアドレスです"
+                                    }
+                                })}
+                                    id="email" type="email" placeholder="メールアドレスを入力" />
+                                    {errors.email && <span className="text-red-500 text-sm">{errors.email.message}</span>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="password">パスワード</Label>
                                 <Input
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    id="password" type="password" required />
+                                {...register("password", {
+                                    required: "パスワードは必須です",
+                                    minLength: {
+                                        value: 6,
+                                        message: "最低6文字以上で入力してください"
+                                    }
+                                })}
+                                    id="password" type="password" />
+                                    {errors.password && <span className="text-red-500 text-sm">{errors.password.message}</span>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="confirm-password">パスワード（確認）</Label>
                                 <Input
-                                    value={passwordConfirmation}
-                                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                                    {...register("passwordConfirmation", {
+                                        required: "パスワード確認は必須です",
+                                        validate: value => value === password || "パスワードが一致しません"
+                                    })}
                                     id="confirm-password" type="password" required />
+                                    {errors.passwordConfirmation && <span className="text-red-500 text-sm">{errors.passwordConfirmation.message}</span>}
+
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-col space-y-4">
