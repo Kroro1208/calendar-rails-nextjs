@@ -159,7 +159,7 @@ const Calendar = () => {
                 />
             )}
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">{user?.name}さんのカレンダー</h1>
+                <h1 className="text-2xl font-bold">{user?.data?.name}さんのカレンダー</h1>
                 <div className="flex gap-3">
                     <Button onClick={() => setIsCreateModalOpen(true)} disabled={createEventMutation.isPending}>
                         予定を追加
