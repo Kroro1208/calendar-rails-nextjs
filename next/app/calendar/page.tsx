@@ -29,12 +29,23 @@ const Calendar = () => {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const router = useRouter();
     const { toast } = useToast();
-    const { user, isCheckingAuth, signOut } = useAuth();
+    const { user, isCheckingAuth, signOut, userError } = useAuth();
 
     const { data: eventsData, isLoading: isEventsLoading, error: eventsError } = useEvents();
     const createEventMutation = useCreateEvent();
     const updateEventMutation = useUpdateEvent();
     const deleteEventMutation = useDeleteEvent();
+
+    useEffect(() => {
+        if (!isCheckingAuth && (userError)) {
+            toast({
+                title: "エラー",
+                description: "認証されていないユーザーまたはユーザーが見つかりません",
+                variant: "destructive"
+            });
+            router.push("/");
+        }
+    }, [isCheckingAuth, userError, toast, router]);
 
     const events: CalendarEvent[] = eventsData?.data.map((event) => ({
             id: event.id ? event.id.toString() : "",
@@ -43,17 +54,6 @@ const Calendar = () => {
             start: new Date(event.startDate),
             end: new Date(event.endDate)
         })) || [];
-
-        useEffect(() => {
-            if(!isCheckingAuth) {
-                if(!user) {
-                    console.log("User not authenticated, redirecting to login");
-                    router.push('/');
-                } else {
-                    console.log("User authenticated:", user);
-                }
-            }
-        }, [isCheckingAuth, user, router]);
 
     const handleCreateEvent: CreateEventFunction = useCallback(async (event) => {
         try {
@@ -133,10 +133,18 @@ const Calendar = () => {
         setSelectedEvent(null);
     }, []);
 
-    const handleLogout = () => {
-        signOut();
-        router.push('/')
-    }
+    const handleLogout = useCallback(async () => {
+        try {
+            await signOut();
+        } catch (error) {
+            console.error("Logout error:", error);
+            toast({
+                title: "警告",
+                description: "ログアウトに問題が発生しましたが、セッションはクリアされました",
+                variant: "destructive"
+            });
+        }
+    }, [signOut, toast]);
 
     if(isCheckingAuth || isEventsLoading) {
         return <Loading />
@@ -159,7 +167,7 @@ const Calendar = () => {
                 />
             )}
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">{user?.data?.name}さんのカレンダー</h1>
+                <h1 className="text-2xl font-bold">{user?.name || user?.data.name}さんのカレンダー</h1>
                 <div className="flex gap-3">
                     <Button onClick={() => setIsCreateModalOpen(true)} disabled={createEventMutation.isPending}>
                         予定を追加

@@ -7,20 +7,37 @@ export const useAuth = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
 
+    const clearAuthCookies = () => {
+        Cookies.remove("_access_token");
+        Cookies.remove("_client");
+        Cookies.remove("_uid");
+        Cookies.remove("sessionId");
+    };
+
     const {
         data: user,
         isPending: isCheckingAuth,
         error: userError,
     } = useQuery({
         queryKey: ["user"],
-        queryFn: getUser,
+        queryFn: async () => {
+            try {
+                const userData = await getUser();
+                if(!userData) {
+                    throw new Error('ユーザーが見つかりません')
+                }
+                return userData;
+            } catch (error) {
+                clearAuthCookies();
+                throw error;
+            }
+        },
         retry: false,
         staleTime: 1000 * 60 * 5
     });
 
-    if(userError) {
-        Cookies.remove("sessionId");
-    }
+    
+
 
     const loginMutation = useMutation({
         mutationFn: signIn,
@@ -51,12 +68,25 @@ export const useAuth = () => {
     });
 
     const signOutMutation = useMutation({
-        mutationFn: signOut,
-        onSuccess: () => {
-            queryClient.removeQueries({  queryKey: ["user"] });
-            router.push("/");
+        mutationFn: async () => {
+            try {
+                await signOut();
+                clearAuthCookies();
+                queryClient.removeQueries({ queryKey: ["user"] });
+                queryClient.setQueryData(["user"], null);
+                router.push("/");
+            } catch (error) {
+                console.error("Sign out error:", error);
+                clearAuthCookies();
+                queryClient.removeQueries({ queryKey: ["user"] });
+                queryClient.setQueryData(["user"], null);
+                router.push("/");
+                throw error;
+            }
         }
     });
+
+    console.log(user)
 
     return {
         login: loginMutation.mutate,
