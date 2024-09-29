@@ -4,6 +4,6 @@ FactoryBot.define do
     description { Faker::Lorem.paragraph }
     start_date { Faker::Time.forward(days: 23, period: :morning) }
     end_date { Faker::Time.forward(days: 23, period: :evening) }
-    association :event_calendar
+    event_calendar # 関連付け
   end
 end
