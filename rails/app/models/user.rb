@@ -6,10 +6,16 @@ class User < ApplicationRecord
   has_one :event_calendar, dependent: :destroy
   has_many :events, through: :event_calendar, dependent: :destroy
 
+  before_validation :set_uid
+
   # after_commitによりユーザー作成後にカレンダーを作成
   after_commit :create_event_calendar, on: :create
 
   private
+
+    def set_uid
+      self.uid = email if uid.blank?
+    end
 
     def create_event_calendar
       # nameが設定されていない場合にはデフォルト値を設定
