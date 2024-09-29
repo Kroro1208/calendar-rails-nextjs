@@ -33,6 +33,8 @@ gem "devise_token_auth", github: "lynndylanhurley/devise_token_auth", branch: "m
 
 group :development, :test do
   # pry コンソールを使えるようにする。
+  gem "factory_bot_rails"
+  gem "faker"
   gem "letter_opener_web"
   gem "pry-byebug"
   gem "pry-doc"
@@ -41,6 +43,4 @@ group :development, :test do
   gem "rubocop-faker"
   gem "rubocop-rails"
   gem "rubocop-rspec"
-  gem "factory_bot_rails"
-  gem "faker"
 end
