@@ -11,25 +11,25 @@ RSpec.describe "Auth::Registrations", type: :request do
       }
     end
 
-    context "with valid parameters" do
-      it "creates a new user" do
+    context "パラメータが有効な場合" do
+      it "新しいユーザーを作成する" do
         expect {
           post "/auth", params: { registration: valid_params }
         }.to change { User.count }.by(1)
       end
 
-      it "returns a successful response" do
+      it "レスポンスが成功を返す" do
         post "/auth", params: { registration: valid_params }
         expect(response).to have_http_status(:success)
       end
 
-      it "creates an event calendar for the user" do
+      it "ユーザーのイベントカレンダーを作成する" do
         post "/auth", params: { registration: valid_params }
         expect(User.last.event_calendar).to be_present
       end
     end
 
-    context "with invalid parameters" do
+    context "パラメータが無効な場合" do
       let(:invalid_params) do
         {
           name: "",
@@ -39,13 +39,13 @@ RSpec.describe "Auth::Registrations", type: :request do
         }
       end
 
-      it "does not create a new user" do
+      it "新しいユーザーを作成しない" do
         expect {
           post "/auth", params: { registration: invalid_params }
         }.not_to change { User.count }
       end
 
-      it "returns an error response" do
+      it "エラーレスポンスを返す" do
         post "/auth", params: { registration: invalid_params }
         expect(response).to have_http_status(:unprocessable_entity)
       end

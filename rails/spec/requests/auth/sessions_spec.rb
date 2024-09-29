@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Auth::Sessions", type: :request do
   describe "GET /auth/sessions" do
-    context "when user is logged in" do
+    context "ユーザーがログインしている場合" do
       let(:user) { create(:user) }
 
       before do
@@ -11,7 +11,7 @@ RSpec.describe "Auth::Sessions", type: :request do
         @auth_headers = user.create_new_auth_token
       end
 
-      it "returns a successful response with user data" do
+      it "ユーザーデータを含むレスポンスが成功を返す" do
         get "/auth/sessions", headers: @auth_headers
         expect(response).to have_http_status(:success)
         json_response = JSON.parse(response.body)
@@ -20,8 +20,8 @@ RSpec.describe "Auth::Sessions", type: :request do
       end
     end
 
-    context "when user is not logged in" do
-      it "returns a response indicating user is not logged in" do
+    context "ユーザーがログインしていない場合" do
+      it "ユーザーがログインしていないことを示すレスポンスを返す" do
         get "/auth/sessions"
         expect(response).to have_http_status(:success)
         json_response = JSON.parse(response.body)

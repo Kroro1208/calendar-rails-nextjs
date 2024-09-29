@@ -11,12 +11,12 @@ RSpec.describe "Events", type: :request do
   end
 
   describe "GET #index" do
-    it "returns a successful response" do
+    it "レスポンスが成功を返す" do
       get events_path, headers: auth_headers
-      expect(response).to have_http_status(:success)
+      expect(response).to have_http_status(:success) # これにより認証済みユーザーとしてリクエストを送信
     end
 
-    it "returns all events for the current user" do
+    it "現在のユーザーのすべてのイベントを返す" do
       get events_path, headers: auth_headers
       json_response = JSON.parse(response.body)
       expect(json_response.length).to eq(1)
@@ -27,34 +27,34 @@ RSpec.describe "Events", type: :request do
   describe "POST #create" do
     let(:valid_attributes) do
       {
-        title: "New Event",
-        description: "Event Description",
+        title: "新しいイベント",
+        description: "イベントの説明",
         start_date: Time.zone.now,
         end_date: Time.zone.now + 1.hour,
       }
     end
 
-    context "with valid parameters" do
-      it "creates a new event" do
+    context "パラメータが有効の場合" do
+      it "新しいイベントを作成する" do
         expect {
           post events_path, params: { event: valid_attributes }, headers: auth_headers
         }.to change { Event.count }.by(1)
       end
 
-      it "returns a created status" do
+      it "作成成功ステータスを返す" do
         post events_path, params: { event: valid_attributes }, headers: auth_headers
         expect(response).to have_http_status(:created)
       end
     end
 
-    context "with invalid parameters" do
-      it "does not create a new event" do
+    context "パラメータが無効の場合" do
+      it "新しいイベントを作成しない" do
         expect {
           post events_path, params: { event: { title: "" } }, headers: auth_headers
         }.not_to change { Event.count }
       end
 
-      it "returns an error status" do
+      it "エラーステータスを返す" do
         post events_path, params: { event: { title: "" } }, headers: auth_headers
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -62,40 +62,40 @@ RSpec.describe "Events", type: :request do
   end
 
   describe "PUT #update" do
-    context "with valid parameters" do
-      let(:new_title) { "Updated Event Title" }
+    context "パラメータが有効の場合" do
+      let(:new_title) { "更新されたイベントタイトル" }
       let(:valid_params) do
         {
           event: { title: new_title },
         }
       end
 
-      it "updates the event" do
+      it "イベントを更新する" do
         put event_path(event), params: valid_params, headers: auth_headers
         event.reload
         expect(event.title).to eq(new_title)
       end
 
-      it "returns a successful response" do
+      it "成功レスポンスを返す" do
         put event_path(event), params: valid_params, headers: auth_headers
         expect(response).to have_http_status(:success)
       end
     end
 
-    context "with invalid parameters" do
+    context "パラメータが無効の場合" do
       let(:invalid_params) do
         {
           event: { title: "" },
         }
       end
 
-      it "does not update the event" do
+      it "イベントを更新しない" do
         put event_path(event), params: invalid_params, headers: auth_headers
         event.reload
         expect(event.title).not_to eq("")
       end
 
-      it "returns an error response" do
+      it "エラーレスポンスを返す" do
         put event_path(event), params: invalid_params, headers: auth_headers
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -103,13 +103,13 @@ RSpec.describe "Events", type: :request do
   end
 
   describe "DELETE #destroy" do
-    it "deletes the event" do
+    it "イベントを削除する" do
       expect {
         delete event_path(event), headers: auth_headers
       }.to change { Event.count }.by(-1)
     end
 
-    it "returns a no content response" do
+    it "no contentレスポンスを返す" do
       delete event_path(event), headers: auth_headers
       expect(response).to have_http_status(:no_content)
     end
