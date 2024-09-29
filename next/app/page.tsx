@@ -34,7 +34,7 @@ export default function Home() {
 
   if (isCheckingAuth) return <Loading />;
 
-  if(user) return null;
+  if(user) return null; // useEffectのリダイレクトが発生する前に、一瞬ログインフォームが表示されるのを防ぐ
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200">
