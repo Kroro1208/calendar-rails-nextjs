@@ -42,6 +42,7 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
 
   config.before(:each, type: :request) do
+    host! 'localhost:3000'  # テスト環境のホストを設定
     allow_any_instance_of(ActionController::Base).to receive(:verify_authenticity_token)
   end
 end
