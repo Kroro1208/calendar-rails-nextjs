@@ -2,6 +2,7 @@ import Cookies from "js-cookie";
 import client from "./client";
 import type { ApiResponse, EventProps } from "../types/type";
 
+//  Railsのdevise_token_authと連携するために必要な認証情報を定義
 const getAuthHeaders = () => {
     const accessToken = Cookies.get("_access_token");
     const clientToken = Cookies.get("_client");
@@ -18,6 +19,8 @@ const getAuthHeaders = () => {
     };
 };
 
+
+// RailsのRESTful APIエンドポイントに対応する各メソッドを定義
 export const getEvents = ():Promise<ApiResponse<EventProps[]>> => {
     return client.get("/events", {
         headers: getAuthHeaders()

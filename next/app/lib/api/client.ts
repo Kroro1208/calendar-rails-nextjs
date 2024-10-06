@@ -8,6 +8,8 @@ const options = {
 const client = applyCaseMiddleware(
     axios.create({
         baseURL: process.env.NEXT_PUBLIC_API_DOMAIN,
+        // クロスオリジンリクエスト時にクッキーや認証ヘッダーを含めることを許可。
+        // これにより、異なるドメイン間でのセッション(NextとRails)管理や認証が可能。
         withCredentials: true 
     }),
     options
